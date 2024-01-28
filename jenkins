@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout source code from your version control system (e.g., Git)
+                sh 'checkout'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Build your application (e.g., Maven, Gradle)
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run your tests
+                sh 'mvn test'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Deploy your application (this is a simplified example)
+                sh 'deploy_script.sh'
+            }
+        }
+    }
+
+    post {
+        success {
+            // Send notifications or perform actions on success
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            // Send notifications or perform actions on failure
+            echo 'Build or deployment failed!'
+        }
+    }
+}
