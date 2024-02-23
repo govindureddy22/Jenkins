@@ -1,0 +1,45 @@
+trigger:
+- main  # Trigger the pipeline on changes to the main branch
+
+pr:
+- main  # Also trigger on pull requests targeting the main branch
+
+pool:
+  vmImage: 'windows-latest'  # Use a Windows agent for this pipeline, you can also use 'ubuntu-latest' for Linux
+
+stages:
+- stage: BuildAndTest
+  jobs:
+  - job: Build
+    displayName: 'Build and Test'
+    steps:
+    - checkout: self
+
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK'
+      inputs:
+        version: '3.x'
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore and Build'
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration Release'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Run Tests'
+      inputs:
+        command: 'test'
+        projects: '**/*Tests/*.csproj'
+        arguments: '--configuration Release'
+
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      inputs:
+        testResultsFiles: '**/TEST-*.xml'
+        searchFolder: '$(System.DefaultWorkingDirectory)'
+
+  # Add more stages and jobs as needed for deployment, etc.
+
