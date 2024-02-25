@@ -1,43 +1,29 @@
-name: SimpleCI/CDPipeline
+trigger:
+- main
 
-# Define the trigger for the pipeline (e.g., push to the main branch)
-on:
-  push:
-    branches:
-      - main
+pr:
+- '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+- job: BuildAndTest
+  displayName: 'Build and Test'
+  steps:
+  - checkout: self
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
 
-      - name: Build
-        run: |
-          # Your build commands go here
-          # For example:
-          # npm install
-          # npm run build
+  - script: npm install
+    displayName: 'Install Dependencies'
 
-      - name: Run Tests
-        run: |
-          # Your test commands go here
-          # For example:
-          # npm test
+  - script: npm run build
+    displayName: 'Build Application'
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build  # Ensure the 'build' job is completed before deploying
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Deploy to Production
-        run: |
-          # Your deployment commands go here
-          # For example:
-          # Deploy the application to a production server
+  - script: npm test
+    displayName: 'Run Tests'
 
